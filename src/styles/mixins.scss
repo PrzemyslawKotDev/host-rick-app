@@ -1,0 +1,25 @@
+@mixin media-xs {
+    @media screen and (min-width: #{$breakpoint-xs}) {
+      @content;
+    }
+  }
+@mixin media-s {
+    @media screen and (min-width: #{$breakpoint-s}) {
+      @content;
+    }
+  }
+  @mixin media-m {
+    @media screen and (min-width: #{$breakpoint-m}) {
+      @content;
+    }
+  }
+  @mixin media-l {
+    @media screen and (min-width: #{$breakpoint-l}) {
+      @content;
+    }
+  }
+  @mixin media-hd {
+    @media screen and (min-width: #{$breakpoint-hd}) {
+      @content;
+    }
+  }
