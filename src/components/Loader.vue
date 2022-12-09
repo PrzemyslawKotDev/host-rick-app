@@ -1,7 +1,7 @@
 <template>
   <div v-if="isLoading" class="background">
     <div class="spin">
-      <div class="loader">
+      <div width="250" height="250" class="loader">
         <div></div>
         <div></div>
         <div></div>
@@ -12,8 +12,8 @@
 </template>
 
 <script setup lang="ts">
-import { useCharactersStore } from "@/stores/characters";
-import { storeToRefs } from "pinia";
+import { useCharactersStore } from '@/stores/characters';
+import { storeToRefs } from 'pinia';
 
 const heroStore = useCharactersStore();
 const { isLoading } = storeToRefs(heroStore);
@@ -39,7 +39,7 @@ const { isLoading } = storeToRefs(heroStore);
   border-radius: 50%;
   width: 100px;
   height: 100px;
-  color: var(--red);
+  color: var(--color-red);
 
   @include media-s {
     width: 250px;
@@ -48,7 +48,7 @@ const { isLoading } = storeToRefs(heroStore);
 }
 .loader:before,
 .loader:after {
-  content: "";
+  content: '';
   display: block;
   position: absolute;
   top: 0;
@@ -60,7 +60,7 @@ const { isLoading } = storeToRefs(heroStore);
   animation: 1s spin linear infinite;
 }
 .loader:after {
-  color: var(--blue);
+  color: var(--color-blue);
   transform: rotateY(70deg);
   animation-delay: 0.4s;
 }

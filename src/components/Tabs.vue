@@ -34,6 +34,7 @@ function handleParams(pickedRoute: string) {
       query: query.value,
     });
   }
+
   if (pickedRoute === "favorites") {
     if (Object.entries(route.query).length) {
       query.value = route.query;
@@ -51,7 +52,7 @@ function handleParams(pickedRoute: string) {
 }
 .link {
   text-decoration: none;
-  color: var(--primary);
+  color: var(--color-primary);
   padding: 3px 0;
   margin: 0 20px;
 
@@ -61,11 +62,11 @@ function handleParams(pickedRoute: string) {
 }
 .active-tab {
   font-weight: $fontweight-bold;
-  color: var(--blue);
-  border-bottom: 1px solid var(--blue);
+  color: var(--color-blue);
+  border-bottom: 1px solid var(--color-blue);
 
   @include media-s {
-    border-bottom: 3px solid var(--blue);
+    border-bottom: 3px solid var(--color-blue);
   }
 }
 </style>

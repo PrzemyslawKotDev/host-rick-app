@@ -1,36 +1,27 @@
 <template>
   <div id="view-bar" class="change-view">
-    <button class="view-btn">
+    <button @click="cardsView" class="view-btn">
       <img
-        @click="cardsView"
-        tabindex="0"
+        height="25"
+        width="25"
         class="view-img"
         src="@/assets/card-view.svg"
+        alt="Card view"
       />
     </button>
-    <button class="view-btn">
+    <button @click="rowsView" class="view-btn">
       <img
-        @click="rowsView"
-        tabindex="0"
+        height="25"
+        width="25"
         class="view-img"
         src="@/assets/row-view.svg"
+        alt="Row wiew"
       />
     </button>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted } from "vue";
-import { useCharactersStore } from "@/stores/characters";
-import { storeToRefs } from "pinia";
-
-const herostore = useCharactersStore();
-const { changeViewElement } = storeToRefs(herostore);
-
-onMounted(() => {
-  changeViewElement.value = document.getElementById("view-bar");
-});
-
 const emit = defineEmits(["viewChange"]);
 
 function rowsView(): void {
@@ -56,9 +47,6 @@ function cardsView(): void {
   background-color: transparent;
 }
 .view-img {
-  width: 25px;
-}
-.view-img:hover {
   cursor: pointer;
 }
 </style>

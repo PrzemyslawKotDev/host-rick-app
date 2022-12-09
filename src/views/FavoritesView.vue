@@ -1,5 +1,5 @@
 <template>
-  <DisplayData :data="favorites" noData="You have no favourites." />
+  <DisplayData :data="favorites" no-data="You have no favourites." />
 </template>
 
 <script setup lang="ts">

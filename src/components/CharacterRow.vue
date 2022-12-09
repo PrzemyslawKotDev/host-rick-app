@@ -1,9 +1,8 @@
 <template>
   <div class="row-container">
-    <div
+    <button
       class="row"
-      tabindex="0"
-      :class="{ description: description }"
+      :class="{ 'description': description }"
       @click="$emit('toggleDetails')"
     >
       <div class="flex-center">
@@ -13,16 +12,20 @@
           </div>
           <img
             v-else
-            v-lazyload
+            v-lazyload="image"
             class="image"
-            :class="{ dead: status === 'Dead' }"
-            :data-src="image"
-            loading="lazy"
+            :class="{ 'dead': status === 'Dead' }"
+            width="100"
+            height="100"
+            :alt="name"
           />
           <img
+            width="20"
+            height="20"
             v-if="status === 'Dead'"
-            class="ribbon"
+            class="skull"
             src="@/assets/dead.svg"
+            :alt="status"
           />
         </div>
       </div>
@@ -41,7 +44,6 @@
           <span class="label">Race:&nbsp;</span> {{ species }}
         </div>
       </div>
-
       <div
         v-if="favorite === 'Favorite'"
         class="fav-desc flex-center text-padding"
@@ -51,22 +53,20 @@
       <div v-else class="flex-center text-padding">
         <button
           @click.stop="$emit('toggleFavorite')"
-          :class="{ favorite: favID?.includes(Number(heroId)) }"
+          :class="{ 'favorite': isFavorite }"
           class="favorites"
         >
           &#x2764;
         </button>
       </div>
-    </div>
+    </button>
   </div>
 </template>
 
 <script setup lang="ts">
-import { storeToRefs } from "pinia";
-import { useCharactersStore } from "@/stores/characters";
-
-const heroStore = useCharactersStore();
-const { favID } = storeToRefs(heroStore);
+import { storeToRefs } from 'pinia';
+import { useCharactersStore } from '@/stores/characters';
+import { computed } from 'vue';
 
 interface PropsInterface {
   description?: boolean;
@@ -80,25 +80,29 @@ interface PropsInterface {
 }
 
 const props = defineProps<PropsInterface>();
+const heroStore = useCharactersStore();
+const { favID } = storeToRefs(heroStore);
+const isFavorite = computed(() => favID.value?.includes(Number(props.heroId)));
 </script>
 
 <style scoped lang="scss">
 .row {
   width: 100%;
   padding: 5px;
-  border-bottom: 1px solid var(--black);
+  border-bottom: 1px solid var(--color-black);
   margin-bottom: 5px;
   display: flex;
   justify-content: space-between;
+  align-items: center;
+  border: 0;
+  background-color: transparent;
+  cursor: pointer;
 
   @include media-xs {
     grid-template-columns: 1fr 4fr 1fr;
     display: grid;
     padding: 5px 20px;
   }
-}
-.row:hover {
-  cursor: pointer;
 }
 .hero-description {
   display: grid;
@@ -119,8 +123,6 @@ const props = defineProps<PropsInterface>();
     128,
     0.4
   ); //<- sass not support rgba with hex, need some kind of fix !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-}
-.description:hover {
   cursor: default;
 }
 .photo-desc {
@@ -146,27 +148,24 @@ const props = defineProps<PropsInterface>();
 .dead {
   filter: brightness(125%) grayscale(100%);
 }
-.ribbon {
+.skull {
   position: absolute;
-  width: 20px;
   right: 5px;
   top: 5px;
 }
 .favorites {
-  color: var(--secondary);
+  color: var(--color-secondary);
   font-size: 20px;
   border: 0;
   background-color: transparent;
+  cursor: pointer;
 
   @include media-s {
     font-size: 40px;
   }
 }
-.favorites:hover {
-  cursor: pointer;
-}
 .favorite {
-  color: var(--red);
+  color: var(--color-red);
 }
 .flex-center {
   display: flex;

@@ -4,7 +4,7 @@
     :page-count="maxPages"
     :page-range="3"
     :margin-pages="1"
-    :click-handler="callData"
+    :click-handler="debouncedPagination"
     :prev-text="'Prev'"
     :next-text="'Next'"
     :container-class="'pagination'"
@@ -15,19 +15,20 @@
 
 <script setup lang="ts">
 //@ts-expect-error
-import Paginate from "vuejs-paginate-next";
-import { storeToRefs } from "pinia";
-import { useCharactersStore } from "@/stores/characters";
-import { useRoute, useRouter } from "vue-router";
-import { ref } from "vue";
-import { useDebounceFn } from "@vueuse/core";
-import { validateQuery } from "@/utilitis/validateQuery";
+import Paginate from 'vuejs-paginate-next';
+import { storeToRefs } from 'pinia';
+import { useCharactersStore } from '@/stores/characters';
+import { useRoute, useRouter } from 'vue-router';
+import { useDebounceFn } from '@vueuse/core';
+import { validateQuery } from '@/utilitis/validateQuery';
+import { ref } from 'vue';
+import { notUsedParams } from '@/utilitis/notUsedParams';
 
 const route = useRoute();
 const heroStore = useCharactersStore();
-const { maxPages, isLoading, changeViewElement, pickedPageNumber } =
-  storeToRefs(heroStore);
+const { maxPages, isLoading, pickedPageNumber } = storeToRefs(heroStore);
 const router = useRouter();
+const scrollToElement = ref();
 
 const debouncedPagination = useDebounceFn(() => {
   if (pickedPageNumber.value < 1) {
@@ -36,11 +37,14 @@ const debouncedPagination = useDebounceFn(() => {
   if (pickedPageNumber.value > maxPages.value) {
     pickedPageNumber.value = maxPages.value;
   }
+
   const { page, ...restOfParams } = route.query;
   const validFilters = validateQuery(restOfParams);
+  const inactiveParams = notUsedParams(restOfParams);
 
   if (validFilters) {
     const validEntries = Object.entries(validFilters);
+
     if (validEntries.length > 1) {
       heroStore.advancedSearch(validFilters, pickedPageNumber.value);
     } else if (validEntries.length < 1) {
@@ -52,20 +56,22 @@ const debouncedPagination = useDebounceFn(() => {
         pickedPageNumber.value
       );
     }
+    isLoading.value = true;
+    if (!scrollToElement.value) {
+      scrollToElement.value = document.getElementById('view-bar');
+    }
+    scrollToElement.value?.scrollIntoView();
   }
+
   router.push({
-    name: "basic",
+    name: 'basic',
     query: {
       page: pickedPageNumber.value,
       ...restOfParams,
+      ...inactiveParams
     },
   });
 }, 500);
-function callData() {
-  isLoading.value = true;
-  changeViewElement.value?.scrollIntoView();
-  debouncedPagination();
-}
 </script>
 
 <style lang="scss">
@@ -82,7 +88,7 @@ function callData() {
   align-items: center;
   width: 50px;
   height: 50px;
-  border: 1px solid var(--black);
+  border: 1px solid var(--color-black);
   border-radius: 5px;
   margin: 3px;
   cursor: pointer;

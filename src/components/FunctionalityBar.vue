@@ -1,9 +1,9 @@
 <template>
   <div class="functionality-container">
     <div class="filters">
-      <FilterDisplay :isFilters="isFilters" class="offset" />
+      <FilterDisplay :is-filters="isFilters" class="offset" />
     </div>
-    <ChangeView @viewChange="$emit('viewChange')" />
+    <ChangeView @view-change="$emit('viewChange')" />
   </div>
 </template>
 
@@ -18,7 +18,7 @@ const props = defineProps({
 
 <style lang="scss" scoped>
 .functionality-container {
-  border-bottom: 1px solid var(--primary);
+  border-bottom: 1px solid var(--color-primary);
   width: 100%;
   display: flex;
   justify-content: center;

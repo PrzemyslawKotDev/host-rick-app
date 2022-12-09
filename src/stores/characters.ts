@@ -36,7 +36,7 @@ export const useCharactersStore = defineStore("characters", () => {
   const favID = computed(() => favorites.value?.map(({ id }) => Number(id)));
 
   const isLoading = ref(false);
-  const changeViewElement = ref<HTMLElement | null>(null);
+  const changeViewElement = ref<HTMLElement | null>(null); // <- this is used to grab
 
   onBeforeMount(() => {
     const favoritesData = localStorage.getItem("rickmortfavs");

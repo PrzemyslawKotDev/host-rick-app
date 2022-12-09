@@ -1,6 +1,11 @@
 <template>
   <div v-if="notifies.length" class="notifier-container">
-    <div v-for="item in notifies" :class="item[0]" class="baloon">
+    <div
+      v-for="item in notifies"
+      :key="item[1]"
+      :class="item[0]"
+      class="baloon"
+    >
       <div class="notifier-type">{{ capitalize(item[0]) }}</div>
       <div class="notifier-message">{{ capitalize(item[1]) }}</div>
     </div>
@@ -18,6 +23,7 @@ const { notifies } = storeToRefs(cacheStore);
 function capitalize(item: string) {
   return item.charAt(0).toUpperCase() + item.slice(1);
 }
+
 watchEffect(() => {
   if (notifies.value.length) {
     setTimeout(() => {
@@ -41,7 +47,7 @@ watchEffect(() => {
 }
 .baloon {
   margin: 5px 0;
-  border: 1px solid var(--black);
+  border: 1px solid var(--color-black);
   padding: 5px;
   border-radius: 6px;
   display: flex;
@@ -58,6 +64,6 @@ watchEffect(() => {
   }
 }
 .error {
-  background-color: var(--red);
+  background-color: var(--color-red);
 }
 </style>

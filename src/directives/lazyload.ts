@@ -1,7 +1,7 @@
 const lazyload = {
-    mounted: (el: HTMLImageElement) => {
+    mounted: (el: HTMLImageElement, binding: { [value: string]: string }) => {
         function loadImg() {
-            el.src = el.dataset.src as string
+            el.src = binding.value
         }
         function callback(entries: { isIntersecting: any; }[], observer: { unobserve: (arg0: HTMLImageElement) => void; }) {
             entries.forEach((entry: { isIntersecting: any; }) => {

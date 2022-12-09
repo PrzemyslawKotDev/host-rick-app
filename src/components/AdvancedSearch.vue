@@ -23,62 +23,71 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import { useCharactersStore } from "@/stores/characters";
-import { useRouter, useRoute, type LocationQueryValue } from "vue-router";
+import { ref } from 'vue';
+import { useCharactersStore } from '@/stores/characters';
+import { useRouter, useRoute } from 'vue-router';
+import { notUsedParams } from '@/utilitis/notUsedParams';
+import { validateQuery } from '@/utilitis/validateQuery';
+
+type KeyType = keyof typeof formModel.value;
 
 const router = useRouter();
 const route = useRoute();
 const heroStore = useCharactersStore();
-
-const emit = defineEmits(["closeSearch"]);
-
-type KeyType = keyof typeof formModel.value;
+const emit = defineEmits(['closeSearch']);
 
 const formModel = ref({
-  name: "",
-  status: "",
-  species: "",
-  type: "",
-  gender: "",
+  name: '',
+  status: '',
+  species: '',
+  type: '',
+  gender: '',
 });
 
 if (route.query) {
-  const queryEntries: [string, LocationQueryValue | LocationQueryValue[]][] =
-    Object.entries(route.query);
+  const { page, ...restOfParams } = route.query;
+  const validFilters = validateQuery(restOfParams);
+  const queryEntries = Object.entries(validFilters);
+
   queryEntries.forEach(([key, item]) => {
-    if (key !== "page") {
+    if (key !== 'page') {
       formModel.value[key as KeyType] = item as string;
     }
   });
 }
 
 function doAdvancedSearch() {
-  const entries: [string, string][] = Object.entries(formModel.value);
+  const entries = Object.entries(formModel.value);
+  const { page, ...restOfParams } = route.query;
+  const inactiveParams = notUsedParams(restOfParams);
+
   const filters = entries.reduce((acumulator, [key, value]) => {
     return {
       ...acumulator,
       ...(value && { [key]: value }),
     };
   }, {});
+
   router.push({
-    name: "basic",
+    name: 'basic',
     query: {
       page: 1,
       ...filters,
+      ...inactiveParams,
     },
   });
+
   heroStore.advancedSearch(filters, 1);
-  emit("closeSearch");
+  emit('closeSearch');
 }
 </script>
 
 <style scoped lang="scss">
 .advanced-search {
   padding: 15px;
-  border: 1px solid var(--black);
+  border: 1px solid var(--color-black);
   position: relative;
-  background-color: var(--white);
+  background-color: var(--color-white);
   width: 90%;
 
   @include media-s {
@@ -100,7 +109,7 @@ function doAdvancedSearch() {
   font-size: 40px;
   transform: rotate(45deg);
   padding: 0 5px;
-  color: var(--red);
+  color: var(--color-red);
   transition: transform 0.2s ease-in-out;
   font-weight: $fontweight-bolder;
 

@@ -9,15 +9,10 @@
         {{ value }}
       </option>
     </select>
-    <div
-      ref="dropdownDisplay"
-      @click="toggleDropdown"
-      tabindex="0"
-      class="display"
-    >
+    <button ref="dropdownDisplay" @click="toggleDropdown" class="display">
       <div class="text">{{ label }}</div>
-      <div class="arrow" :class="{ rotate: isOpen }">&#60;</div>
-    </div>
+      <div class="arrow" :class="{ 'rotate': isOpen }">&#60;</div>
+    </button>
     <div v-if="isOpen" class="options">
       <button
         @click="pickOption(key)"
@@ -32,11 +27,11 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
-import { storeToRefs } from "pinia";
-import { useCharactersStore } from "@/stores/characters";
-import { computed } from "@vue/reactivity";
-import { validateQuery } from "@/utilitis/validateQuery";
+import { onMounted, ref } from 'vue';
+import { storeToRefs } from 'pinia';
+import { useCharactersStore } from '@/stores/characters';
+import { computed } from '@vue/reactivity';
+import { validateQuery } from '@/utilitis/validateQuery';
 
 type DropdownValueType = typeof selectedDropdownValue.value;
 
@@ -44,10 +39,7 @@ const heroStore = useCharactersStore();
 const { dropdownObject, selectedDropdownValue } = storeToRefs(heroStore);
 const dropdownDisplay = ref();
 const isOpen = ref(false);
-
-const label = computed(() => {
-  return dropdownObject.value[selectedDropdownValue.value];
-});
+const label = computed(() => dropdownObject.value[selectedDropdownValue.value]);
 
 onMounted(() => {
   const paramsString = window.location.search;
@@ -55,10 +47,12 @@ onMounted(() => {
   const queryObject = Object.fromEntries(searchParams.entries());
   const query = validateQuery(queryObject);
   const queryEntries = Object.entries(query);
+
   if (queryEntries.length === 1) {
     selectedDropdownValue.value = queryEntries[0][0] as DropdownValueType;
   }
 });
+// VUEUSE DYREKTYWA UŻYĆ
 function detectClicks(event: MouseEvent) {
   if (event.target instanceof Element) {
     if (
@@ -66,14 +60,14 @@ function detectClicks(event: MouseEvent) {
       dropdownDisplay.value !== event.target?.parentNode
     ) {
       isOpen.value = false;
-      document.removeEventListener("click", detectClicks);
+      document.removeEventListener('click', detectClicks);
     }
   }
 }
 
 function toggleDropdown() {
   if (!isOpen.value) {
-    document.addEventListener("click", detectClicks);
+    document.addEventListener('click', detectClicks);
     isOpen.value = true;
   } else {
     isOpen.value = false;
@@ -90,13 +84,13 @@ function pickOption(item: DropdownValueType) {
   position: relative;
   width: 100%;
   cursor: pointer;
-  background-color: var(--white);
+  background-color: var(--color-white);
   border-radius: 10px;
   overflow: hidden;
 
   @include media-s {
-    border-right: 1px solid var(--primary);
-    border-radius: 0px;
+    border-right: 1px solid var(--color-primary);
+    border-radius: 0;
     overflow: unset;
   }
 }
@@ -117,13 +111,19 @@ function pickOption(item: DropdownValueType) {
   position: relative;
   display: flex;
   justify-content: space-between;
+  align-items: center;
   z-index: 1;
   padding: 16px;
   pointer-events: none;
-  background-color: var(--white);
+  background-color: var(--color-white);
+  border: 0;
+  color: var(--color-primary);
+  font-size: 16px;
+  width: 100%;
 
   @include media-s {
     pointer-events: unset;
+    font-size: 20px;
   }
 }
 .text {
@@ -138,7 +138,7 @@ function pickOption(item: DropdownValueType) {
 }
 .options {
   position: absolute;
-  border: 1px solid var(--primary);
+  border: 1px solid var(--color-primary);
   top: 100%;
   left: -1px;
   z-index: 999;
@@ -147,8 +147,8 @@ function pickOption(item: DropdownValueType) {
   padding: 16px;
   width: 100%;
   border: 0;
-  background-color: var(--white);
-  color: var(--primary);
+  background-color: var(--color-white);
+  color: var(--color-primary);
 
   @include media-s {
     font-size: 20px;

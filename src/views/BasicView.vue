@@ -1,33 +1,31 @@
 <template>
   <DisplayData
-    isFilters
+    is-filters
     v-if="characters && characters !== 'error'"
     :data="characters.results"
-    noData="No data to display."
-    @openHeroDetails="isDetailsViewOpen"
+    no-data="No data to display."
+    @open-hero-details="isDetailsViewOpen"
   />
-  <Overlay :isOpen="openDetailsView" @closeDetails="openDetailsView = false">
-    <HeroDetails @closeDetails="openDetailsView = false" :hero="heroData" />
+  <Overlay :is-open="openDetailsView" @close-details="openDetailsView = false">
+    <HeroDetails @close-details="openDetailsView = false" :hero="heroData" />
   </Overlay>
   <PageNavigation />
 </template>
 
 <script setup lang="ts">
-import { useCharactersStore } from "@/stores/characters";
-import { onMounted, ref } from "vue";
-import DisplayData from "@/components/DisplayData.vue";
-import HeroDetails from "@/components/HeroDetails.vue";
-import type HeroInterface from "@/types/hero";
-import { storeToRefs } from "pinia";
-import Overlay from "@/components/Overlay.vue";
-import PageNavigation from "@/components/PageNavigation.vue";
-import { useRoute, useRouter } from "vue-router";
-import { validateQuery } from "@/utilitis/validateQuery";
+import { useCharactersStore } from '@/stores/characters';
+import { onMounted, ref } from 'vue';
+import DisplayData from '@/components/DisplayData.vue';
+import HeroDetails from '@/components/HeroDetails.vue';
+import type HeroInterface from '@/types/hero';
+import { storeToRefs } from 'pinia';
+import Overlay from '@/components/Overlay.vue';
+import PageNavigation from '@/components/PageNavigation.vue';
+import { useRoute, useRouter } from 'vue-router';
+import { validateQuery } from '@/utilitis/validateQuery';
 
 const openDetailsView = ref(false);
 const heroData = ref<HeroInterface>();
-const showInRows = ref<boolean>(false);
-showInRows.value = !!localStorage.getItem("rows");
 const heroStore = useCharactersStore();
 const { characters } = storeToRefs(heroStore);
 const route = useRoute();
@@ -36,17 +34,20 @@ const router = useRouter();
 onMounted(() => {
   const { page, ...restOfParams } = route.query;
   const validFilters = validateQuery(restOfParams);
+
   if (!page) {
     router.push({
-      name: "basic",
+      name: 'basic',
       query: {
         page: 1,
         ...restOfParams,
       },
     });
   }
+
   if (validFilters) {
     const validEntries = Object.entries(validFilters);
+
     if (validEntries.length > 1) {
       heroStore.advancedSearch(validFilters, Number(page));
     } else if (validEntries.length < 1) {
@@ -62,6 +63,6 @@ function isDetailsViewOpen(hero: HeroInterface) {
   openDetailsView.value = true;
 }
 </script>
-//Header selfclose na czerwono -> czemu? googlać //dropdown bugi, zostaje
-wartość // drugi click w favorites tab przenosi do all characters
+//Header selfclose na czerwono -> czemu? googlać //vite ssg test // PageSpeed bug
+fix
 <style scoped lang="scss"></style>

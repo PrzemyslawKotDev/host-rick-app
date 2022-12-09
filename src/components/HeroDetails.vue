@@ -3,14 +3,17 @@
     class="hero-details"
     ref="elementWith3D"
     :style="{
-      transform: cardTransform,
-      transition: 'transform 0.25s ease-out',
+      'transform': cardTransform,
+      'transition': 'transform 0.25s ease-out',
     }"
   >
     <img
       :src="hero?.image"
       class="img"
-      :class="{ dead: hero?.status === 'Dead' }"
+      :class="{ 'dead': hero?.status === 'Dead' }"
+      width="300"
+      height="300"
+      :alt="hero?.name"
     />
     <div class="info">
       <div class="text-space">ID: {{ hero?.id }}</div>
@@ -32,26 +35,25 @@
         {{ created }}
       </div>
     </div>
-
     <button @click="$emit('closeDetails')" class="close">+</button>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
-import { useMouseInElement } from "@vueuse/core";
-import type HeroInterface from "@/types/hero";
+import { computed, ref } from 'vue';
+import { useMouseInElement } from '@vueuse/core';
+import type HeroInterface from '@/types/hero';
 
 const props = defineProps<{
   hero: HeroInterface | undefined;
 }>();
 
 const lastEpisode = computed(() => {
-  return props.hero?.episode[props.hero.episode.length - 1].split("/")[5];
+  return props.hero?.episode[props.hero.episode.length - 1].split('/')[5];
 });
 
 const created = computed(() => {
-  return props.hero?.created.split("T")[0].split("-").reverse().join("/");
+  return props.hero?.created.split('T')[0].split('-').reverse().join('/');
 });
 
 const elementWith3D = ref(null);
@@ -60,16 +62,19 @@ const { elementX, elementY, isOutside, elementHeight, elementWidth } =
 
 const cardTransform = computed(() => {
   const MAX_ROTATION = 20;
+
   const rX = (
     MAX_ROTATION / 2 -
     (elementY.value / elementHeight.value) * MAX_ROTATION
   ).toFixed(2);
+
   const rY = (
     (elementX.value / elementWidth.value) * MAX_ROTATION -
     MAX_ROTATION / 2
   ).toFixed(2);
+
   return isOutside.value
-    ? ""
+    ? ''
     : `perspective(${elementWidth.value}px) rotateX(${rX}deg) rotateY(${rY}deg)`;
 });
 </script>
@@ -77,24 +82,22 @@ const cardTransform = computed(() => {
 <style scoped lang="scss">
 .hero-details {
   position: relative;
-  border: 2px solid var(--black);
+  border: 2px solid var(--color-black);
   border-radius: 10px;
-  background-color: var(--white);
+  background-color: var(--color-white);
   max-width: 90%;
   font-size: 14px;
   padding: 10px;
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
+  cursor: default;
 
   @include media-s {
     padding: 30px;
     font-size: 20px;
     flex-wrap: nowrap;
   }
-}
-.hero-details:hover {
-  cursor: default;
 }
 .close {
   position: absolute;
@@ -106,9 +109,10 @@ const cardTransform = computed(() => {
   font-size: 40px;
   transform: rotate(45deg);
   padding: 0 5px;
-  color: var(--red);
+  color: var(--color-red);
   transition: transform 0.2s ease-in-out;
   font-weight: $fontweight-bolder;
+  cursor: pointer;
 }
 .close:hover {
   transform: rotate(135deg);

@@ -1,13 +1,13 @@
 <template>
   <div class="display-results">
-    <FunctionalityBar :isFilters="isFilters" @viewChange="isRowView" />
+    <FunctionalityBar :is-filters="isFilters" @view-change="isRowView" />
     <div class="no-favs" v-if="!show">{{ noData }}</div>
     <template v-else>
       <div v-if="showInRows" class="rows">
         <CharacterRow
           description
           image="Photo"
-          heroId="ID number"
+          hero-id="ID number"
           name="Name"
           gender="Gender"
           species="Species"
@@ -19,14 +19,14 @@
           v-for="item in data"
           :key="item.id"
           :image="item.image"
-          :heroId="item.id"
+          :hero-id="item.id"
           :name="item.name"
           :gender="item.gender"
           :species="item.species"
           :status="item.status"
-          isFavorite
-          @toggleFavorite="heroStore.handleFavorites(item)"
-          @toggleDetails="$emit('openHeroDetails', item)"
+          is-favorite
+          @toggle-favorite="heroStore.handleFavorites(item)"
+          @toggle-details="$emit('openHeroDetails', item)"
         />
       </div>
       <div v-else class="cards">
@@ -34,14 +34,14 @@
           v-for="item in data"
           :key="item.id"
           :image="item.image"
-          :heroId="item.id"
+          :hero-id="item.id"
           :name="item.name"
           :gender="item.gender"
           :species="item.species"
           :status="item.status"
-          isFavorite
-          @toggleFavorite="heroStore.handleFavorites(item)"
-          @toggleDetails="$emit('openHeroDetails', item)"
+          is-favorite
+          @toggle-favorite="heroStore.handleFavorites(item)"
+          @toggle-details="$emit('openHeroDetails', item)"
         />
       </div>
     </template>
@@ -49,29 +49,31 @@
 </template>
 
 <script setup lang="ts">
-import CharacterCard from "@/components/CharacterCard.vue";
-import CharacterRow from "@/components/CharacterRow.vue";
-import { computed, ref } from "vue";
-import type HeroType from "@/types/hero";
-import { useCharactersStore } from "@/stores/characters";
-import { validateQuery } from "@/utilitis/validateQuery";
-import FunctionalityBar from "./FunctionalityBar.vue";
+import CharacterCard from '@/components/CharacterCard.vue';
+import CharacterRow from '@/components/CharacterRow.vue';
+import { computed, ref } from 'vue';
+import type HeroType from '@/types/hero';
+import { useCharactersStore } from '@/stores/characters';
+import { validateQuery } from '@/utilitis/validateQuery';
+import FunctionalityBar from './FunctionalityBar.vue';
 
 const props = defineProps<{
   data: HeroType[];
   noData: string;
   isFilters?: boolean;
 }>();
+
+const showInRows = ref<boolean>(!!localStorage.getItem('rows'));
 const heroStore = useCharactersStore();
+
 const show = computed(() => {
   if (props.data) {
     return true;
   } else return false;
 });
-const showInRows = ref<boolean>(!!localStorage.getItem("rows"));
 
 function isRowView() {
-  showInRows.value = !!localStorage.getItem("rows");
+  showInRows.value = !!localStorage.getItem('rows');
 }
 
 window.onpopstate = function () {
@@ -80,8 +82,10 @@ window.onpopstate = function () {
   const queryObject = Object.fromEntries(searchParams.entries());
   const { page, ...restOfParams } = queryObject;
   const validFilters = validateQuery(restOfParams);
+
   if (validFilters) {
     const validEntries = Object.entries(validFilters);
+
     if (validEntries.length > 1) {
       heroStore.advancedSearch(validFilters, Number(page));
     } else if (validEntries.length < 1) {
@@ -115,7 +119,7 @@ window.onpopstate = function () {
 }
 .nav-btn {
   border: 0;
-  background: var(--white);
+  background: var(--color-white);
   font-size: 40px;
   padding: 0 20px;
   margin-top: -5px;
