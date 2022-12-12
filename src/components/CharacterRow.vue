@@ -12,7 +12,6 @@
           </div>
           <img
             v-else
-            fetchpriority="high"
             v-lazyload="image"
             class="image"
             :class="{ 'dead': status === 'Dead' }"

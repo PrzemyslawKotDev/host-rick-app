@@ -1,9 +1,8 @@
 <template>
-  <div class="card">
+  <div class="card" style="height: 426px">
     <button class="card-container" @click="$emit('toggleDetails')">
       <div class="photo">
         <img
-          fetchpriority="high"
           height="298"
           width="298"
           v-lazyload="image"
