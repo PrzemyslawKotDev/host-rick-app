@@ -1,5 +1,5 @@
 <template>
-  <div class="dropdown">
+  <div ref="dropdown" class="dropdown">
     <select v-model="selectedDropdownValue" class="native-dropdown">
       <option
         v-for="(value, key, index) in dropdownObject"
@@ -9,7 +9,7 @@
         {{ value }}
       </option>
     </select>
-    <button ref="dropdownDisplay" @click="toggleDropdown" class="display">
+    <button @click="isOpen = !isOpen" class="display">
       <div class="text">{{ label }}</div>
       <div class="arrow" :class="{ 'rotate': isOpen }">&#60;</div>
     </button>
@@ -32,12 +32,13 @@ import { storeToRefs } from 'pinia';
 import { useCharactersStore } from '@/stores/characters';
 import { computed } from '@vue/reactivity';
 import { validateQuery } from '@/utilitis/validateQuery';
+import { onClickOutside } from '@vueuse/core';
 
 type DropdownValueType = typeof selectedDropdownValue.value;
 
 const heroStore = useCharactersStore();
 const { dropdownObject, selectedDropdownValue } = storeToRefs(heroStore);
-const dropdownDisplay = ref();
+const dropdown = ref();
 const isOpen = ref(false);
 const label = computed(() => dropdownObject.value[selectedDropdownValue.value]);
 
@@ -52,27 +53,8 @@ onMounted(() => {
     selectedDropdownValue.value = queryEntries[0][0] as DropdownValueType;
   }
 });
-// VUEUSE DYREKTYWA UŻYĆ
-function detectClicks(event: MouseEvent) {
-  if (event.target instanceof Element) {
-    if (
-      dropdownDisplay.value !== event.target &&
-      dropdownDisplay.value !== event.target?.parentNode
-    ) {
-      isOpen.value = false;
-      document.removeEventListener('click', detectClicks);
-    }
-  }
-}
+onClickOutside(dropdown, () => (isOpen.value = false));
 
-function toggleDropdown() {
-  if (!isOpen.value) {
-    document.addEventListener('click', detectClicks);
-    isOpen.value = true;
-  } else {
-    isOpen.value = false;
-  }
-}
 function pickOption(item: DropdownValueType) {
   selectedDropdownValue.value = item;
   isOpen.value = false;

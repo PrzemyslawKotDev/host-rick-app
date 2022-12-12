@@ -65,7 +65,6 @@ function deleteFilter(filter: FilterValueType) {
     });
 
     const reducedEntries: [string, string][] = Object.entries(reduced);
-    console.log(reducedEntries);
     if (reducedEntries.length === 0) {
       heroStore.getData(Number(page));
     }

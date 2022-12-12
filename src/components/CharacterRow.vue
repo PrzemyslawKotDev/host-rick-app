@@ -89,12 +89,12 @@ const isFavorite = computed(() => favID.value?.includes(Number(props.heroId)));
 .row {
   width: 100%;
   padding: 5px;
+  border: 0;
   border-bottom: 1px solid var(--color-black);
   margin-bottom: 5px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border: 0;
   background-color: transparent;
   cursor: pointer;
 
