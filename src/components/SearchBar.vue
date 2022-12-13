@@ -38,27 +38,19 @@ import { useCharactersStore } from '@/stores/characters';
 import { storeToRefs } from 'pinia';
 import Overlay from './Overlay.vue';
 import AdvancedSearch from './AdvancedSearch.vue';
-import { onMounted, ref } from 'vue';
+import { ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { validateQuery } from '@/utilitis/validateQuery';
 import { notUsedParams } from '@/utilitis/notUsedParams';
 
+type DropdownValueType = typeof selectedDropdownValue.value;
+
 const heroStore = useCharactersStore();
 const { searchString, selectedDropdownValue } = storeToRefs(heroStore);
 const isAdvancedSearch = ref(false);
+
 const router = useRouter();
 const route = useRoute();
-
-onMounted(() => {
-  setTimeout(() => {
-    const query = validateQuery(route.query);
-    const queryEntries = Object.entries(query);
-
-    if (queryEntries.length === 1) {
-      searchString.value = queryEntries[0][1] as string;
-    }
-  }, 1);
-});
 
 function doSearch() {
   const { page, ...restOfParams } = route.query;
@@ -81,6 +73,26 @@ function doSearch() {
     name: 'basic',
     query: { ...query, ...inactiveParams },
   });
+}
+
+watch(
+  () => route.query,
+  (newValue) => {
+    handleParams(newValue as { [k: string]: string });
+  }
+);
+
+function handleParams(queryObject: { [k: string]: string }): void {
+  const query = validateQuery(queryObject);
+  const queryEntries = Object.entries(query);
+
+  if (queryEntries.length === 1) {
+    selectedDropdownValue.value = queryEntries[0][0] as DropdownValueType;
+    searchString.value = queryEntries[0][1] as string;
+  } else {
+    selectedDropdownValue.value = 'name';
+    searchString.value = '';
+  }
 }
 </script>
 

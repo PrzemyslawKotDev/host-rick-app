@@ -27,32 +27,20 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { ref } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useCharactersStore } from '@/stores/characters';
-import { computed } from '@vue/reactivity';
-import { validateQuery } from '@/utilitis/validateQuery';
 import { onClickOutside } from '@vueuse/core';
+import { computed } from '@vue/reactivity';
 
 type DropdownValueType = typeof selectedDropdownValue.value;
 
 const heroStore = useCharactersStore();
-const { dropdownObject, selectedDropdownValue } = storeToRefs(heroStore);
-const dropdown = ref();
+const { selectedDropdownValue, dropdownObject } = storeToRefs(heroStore);
 const isOpen = ref(false);
+const dropdown = ref();
 const label = computed(() => dropdownObject.value[selectedDropdownValue.value]);
 
-onMounted(() => {
-  const paramsString = window.location.search;
-  const searchParams = new URLSearchParams(paramsString);
-  const queryObject = Object.fromEntries(searchParams.entries());
-  const query = validateQuery(queryObject);
-  const queryEntries = Object.entries(query);
-
-  if (queryEntries.length === 1) {
-    selectedDropdownValue.value = queryEntries[0][0] as DropdownValueType;
-  }
-});
 onClickOutside(dropdown, () => (isOpen.value = false));
 
 function pickOption(item: DropdownValueType) {

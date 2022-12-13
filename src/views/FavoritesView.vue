@@ -3,9 +3,9 @@
 </template>
 
 <script setup lang="ts">
-import DisplayData from "@/components/DisplayData.vue";
-import { useCharactersStore } from "@/stores/characters";
-import { storeToRefs } from "pinia";
+import DisplayData from '@/components/DisplayData.vue';
+import { useCharactersStore } from '@/stores/characters';
+import { storeToRefs } from 'pinia';
 
 const heroStore = useCharactersStore();
 const { favorites } = storeToRefs(heroStore);

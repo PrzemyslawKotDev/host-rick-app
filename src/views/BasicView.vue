@@ -63,7 +63,6 @@ function isDetailsViewOpen(hero: HeroInterface) {
   openDetailsView.value = true;
 }
 </script>
-//Header selfclose na czerwono -> czemu? googlać //vite ssg test // PageSpeed
-bug fix // najpier filtr przez dropdown, pozniej dopisz w advanced, dropdown
-zostaje -> usunięcie filtrów dropdown zostaje
+//TODO: Header selfclose na czerwono -> czemu? googlać //vite ssg test //
+PageSpeed bug fix //
 <style scoped lang="scss"></style>

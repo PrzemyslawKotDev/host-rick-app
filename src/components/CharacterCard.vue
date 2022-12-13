@@ -1,10 +1,10 @@
 <template>
-  <div class="card" style="height: 426px">
+  <div class="card">
     <button class="card-container" @click="$emit('toggleDetails')">
       <div class="photo">
         <img
-          height="298"
-          width="298"
+          height="300"
+          width="300"
           v-lazyload="image"
           :class="{ 'dead': status === 'Dead' }"
           :alt="name"

@@ -67,11 +67,10 @@ const showInRows = ref<boolean>(!!localStorage.getItem('rows'));
 const heroStore = useCharactersStore();
 
 const show = computed(() => {
-  if (props.data) {
+  if (props.data.length) {
     return true;
   } else return false;
 });
-
 function isRowView() {
   showInRows.value = !!localStorage.getItem('rows');
 }
