@@ -1,34 +1,35 @@
 <template>
-  <div v-if="notifies.length" class="notifier-container">
+  <div v-if="charactersNotifies.length" class="notifier-container">
     <div
-      v-for="item in notifies"
-      :key="item[1]"
-      :class="item[0]"
+      v-for="item in charactersNotifies"
+      :key="item.id"
+      :class="item.type"
       class="baloon"
     >
-      <div class="notifier-type">{{ capitalize(item[0]) }}</div>
-      <div class="notifier-message">{{ capitalize(item[1]) }}</div>
+      <div class="notifier-type">{{ capitalize(item.type) }}</div>
+      <div class="notifier-message">{{ capitalize(item.message) }}</div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useCache } from "@/stores/cache";
-import { storeToRefs } from "pinia";
-import { watchEffect } from "vue";
+import { useCharactersCache } from '@/stores/cache';
+import { storeToRefs } from 'pinia';
+import { watchEffect } from 'vue';
 
-const cacheStore = useCache();
-const { notifies } = storeToRefs(cacheStore);
+const cacheCharactersStore = useCharactersCache();
+const { charactersNotifies } = storeToRefs(cacheCharactersStore);
+const timeToRead = 5000;
 
-function capitalize(item: string) {
+function capitalize(item: string): string {
   return item.charAt(0).toUpperCase() + item.slice(1);
 }
 
 watchEffect(() => {
-  if (notifies.value.length) {
-    setTimeout(() => {
-      notifies.value.pop();
-    }, 5000);
+  if (charactersNotifies.value.length) {
+    window.setTimeout(() => {
+      charactersNotifies.value.pop();
+    }, timeToRead);
   }
 });
 </script>

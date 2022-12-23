@@ -1,12 +1,5 @@
 <template>
-  <div
-    class="hero-details"
-    ref="elementWith3D"
-    :style="{
-      'transform': cardTransform,
-      'transition': 'transform 0.25s ease-out',
-    }"
-  >
+  <div class="hero-details" ref="elementWith3D" :style="{}">
     <img
       :src="hero?.image"
       class="img"
@@ -44,16 +37,25 @@ import { computed, ref } from 'vue';
 import { useMouseInElement } from '@vueuse/core';
 import type HeroInterface from '@/types/hero';
 
-const props = defineProps<{
+type PropsType = {
   hero: HeroInterface | undefined;
-}>();
+};
+
+const props = defineProps<PropsType>();
 
 const lastEpisode = computed(() => {
-  return props.hero?.episode[props.hero.episode.length - 1].split('/')[5];
+  if (props.hero) {
+    const linkLast = Object.values(props.hero.episode).at(-1);
+    const episode = linkLast?.substring(linkLast.lastIndexOf('episode/'));
+    return episode?.replace(/\D/g, '');
+  }
 });
 
 const created = computed(() => {
-  return props.hero?.created.split('T')[0].split('-').reverse().join('/');
+  if (props.hero) {
+    const newDate = new Date(props.hero.created);
+    return convertDate(newDate);
+  }
 });
 
 const elementWith3D = ref(null);
@@ -77,6 +79,19 @@ const cardTransform = computed(() => {
     ? ''
     : `perspective(${elementWidth.value}px) rotateX(${rX}deg) rotateY(${rY}deg)`;
 });
+
+function convertDate(date: Date) {
+  let day = date.getDate().toString();
+  let month = date.getMonth().toString();
+  let year = date.getFullYear().toString();
+  if (day.length === 1) {
+    day = `0${day}`;
+  }
+  if (month.length === 1) {
+    month = `0${month}`;
+  }
+  return `${day}/${month}/${year}`;
+}
 </script>
 
 <style scoped lang="scss">
@@ -92,6 +107,8 @@ const cardTransform = computed(() => {
   justify-content: center;
   flex-wrap: wrap;
   cursor: default;
+  transform: v-bind(cardTransform);
+  transition: transform 0.25s ease-out;
 
   @include media-s {
     padding: 30px;
@@ -113,11 +130,12 @@ const cardTransform = computed(() => {
   transition: transform 0.2s ease-in-out;
   font-weight: $fontweight-bolder;
   cursor: pointer;
+
+  &:hover {
+    transform: rotate(135deg);
+  }
 }
-.close:hover {
-  transform: rotate(135deg);
-}
-.dead {
+.close .dead {
   filter: brightness(130%) grayscale(100%);
 }
 .text-space {

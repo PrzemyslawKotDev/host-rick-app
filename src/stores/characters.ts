@@ -1,18 +1,13 @@
 import { computed, onBeforeMount, ref } from "vue";
 import { defineStore, storeToRefs } from "pinia";
-import getSearched from "@/service/getSearched";
-import getPage from "@/service/getPage";
-import getAdvancedSearch from "@/service/getAdvancedSearch";
-import { useCache } from "@/stores/cache";
+import getCharactersData from "@/service/getCharactersData";
+import { useCharactersCache } from "@/stores/cache";
 import type HeroType from "@/types/hero";
 import type CharactersType from "@/types/characters";
-import type { ValidateQueryType } from '@/utilitis/validateQuery';
+import type { ParamsType, FilterType } from '@/utilitis/validateQuery';
+import getUniqueId from '@/utilitis/getUniqueId';
 
 export const useCharactersStore = defineStore("characters", () => {
-  type FilterValuesType = keyof typeof dropdownObject.value;
-
-  const cacheStore = useCache();
-  const { cache, notifies } = storeToRefs(cacheStore);
 
   const dropdownObject = ref({
     name: "Name",
@@ -20,35 +15,31 @@ export const useCharactersStore = defineStore("characters", () => {
     species: "Species",
     type: "Type",
     gender: "Gender",
-    id: "ID",
   });
-  const dropdownLabels = Object.values(dropdownObject.value);
-
-  const selectedDropdownValue = ref<FilterValuesType>("name");
-
-  const baseUrl = "https://rickandmortyapi.com/api/character";
+  const cacheStore = useCharactersCache();
+  const { charactersCache } = storeToRefs(cacheStore);
+  const selectedDropdownValue = ref<FilterType>("name");
   const maxPages = ref(1);
   const pickedPageNumber = ref(1)
   const searchString = ref("");
-
-  const characters = ref<CharactersType | "error">("error");
+  const characters = ref<CharactersType>();
   const favorites = ref<HeroType[]>([]);
   const favID = computed(() => favorites.value?.map(({ id }) => Number(id)));
-
   const isLoading = ref(false);
-  const changeViewElement = ref<HTMLElement | null>(null); // <- this is used to grab
+  const changeViewElement = ref<HTMLElement | null>(null);
 
-  onBeforeMount(() => {
+  onBeforeMount((): void => {
     const favoritesData = localStorage.getItem("rickmortfavs");
     if (favoritesData) {
       favorites.value = JSON.parse(favoritesData);
     }
   });
 
-  function handleFavorites(item: HeroType) {
+  function handleFavorites(item: HeroType): void {
     let isFav = false;
+
     favorites.value?.forEach((hero, index) => {
-      if (hero.id == item.id) {
+      if (hero.id === item.id) {
         favorites.value?.splice(index, 1);
         isFav = true;
       }
@@ -59,141 +50,80 @@ export const useCharactersStore = defineStore("characters", () => {
     localStorage.setItem("rickmortfavs", JSON.stringify(favorites.value));
   }
 
-  async function getData(pageNumber: number) {
-    pickedPageNumber.value = pageNumber;
-    isLoading.value = true;
-    const searchParams = {
-      page: `${pageNumber}`,
-    };
-    let newUrl: string;
-    const query = new URLSearchParams(searchParams).toString();
-    if (searchString.value) {
-      newUrl = `${baseUrl}/?${query}&${selectedDropdownValue.value.toLowerCase()}=${searchString.value
-        }`;
-    } else {
-      newUrl = `${baseUrl}/?${query}`;
-    }
-    if (
-      Object.keys(cache.value).includes(query) &&
-      Object.keys(cache.value).length
-    ) {
-      characters.value = cache.value[query];
-    } else {
-      characters.value = await getPage(newUrl);
-    }
-    if (characters.value === "error") {
-      notifies.value.unshift([
-        "error",
-        "an error has occurred, please contact your application administrator!",
-      ]);
-      isLoading.value = false;
-    } else if (characters.value) {
-      cacheStore.addCache(query, characters.value);
-      maxPages.value = characters.value.info.pages;
-      setTimeout(() => {
-        isLoading.value = false;
-      }, 500);
-    }
-  }
+  async function getCharacters(pageNum?: number, filters?: ParamsType) {
 
-  async function search(filter: string, value: string, pageNum?: number) {
-    isLoading.value = true;
-    let searchParams: { [key: string]: string }
-    if (pageNum) {
-      pickedPageNumber.value = pageNum;
-      searchParams = {
-        page: `${pageNum}`,
-        filter: value
-      };
-    } else {
-      pickedPageNumber.value = 1;
-      searchParams = {
-        filter: value
-      };
-    }
-    const query = new URLSearchParams(searchParams).toString();
-    let data: CharactersType | "error";
-    if (Object.keys(cache.value).includes(query)) {
-      data = cache.value[query];
-    } else {
-      data = await getSearched(filter, value, pageNum);
-    }
-    if (data === "error") {
-      notifies.value.unshift([
-        "error",
-        "an error has occurred, please contact your application administrator!",
-      ]);
-      isLoading.value = false;
-    } else if (data) {
-      characters.value = data;
-      cacheStore.addCache(query, characters.value);
-      if (characters.value) {
-        maxPages.value = characters.value.info.pages;
-      }
-      setTimeout(() => {
-        isLoading.value = false;
-      }, 500);
-    } else {
-      (characters.value as CharactersType).results = [];
-      setTimeout(() => {
-        isLoading.value = false;
-      }, 500);
-    }
-  }
-
-  async function advancedSearch(filters: ValidateQueryType, pageNum: number) {
-    pickedPageNumber.value = pageNum;
-    isLoading.value = true;
-    let searchParams: { [key: string]: string } = {
+    const charactersQuery = {
       page: `${pageNum}`,
-      ...filters
+      ...sortFilters(filters)
     };
+    const charactersParams = new URLSearchParams(charactersQuery).toString();
 
-    const query = new URLSearchParams(searchParams).toString();
-    let data: CharactersType | "error";
-    if (Object.keys(cache.value).includes(query)) {
-      data = cache.value[query];
-    } else {
-      data = await getAdvancedSearch(filters, pageNum);
+    isLoading.value = true;
+
+    if (isResultsCached(charactersParams)) {
+      characters.value = charactersCache.value[charactersParams];
+      window.setTimeout(() => {
+        isLoading.value = false;
+      }, 500);
+      return
     }
-    if (data === "error") {
-      notifies.value.unshift([
-        "error",
-        "an error has occurred, please contact your application administrator!",
-      ]);
-      isLoading.value = false;
-    } else if (data) {
-      characters.value = data;
-      cacheStore.addCache(query, characters.value);
+
+    try {
+      const newUrl = `https://rickandmortyapi.com/api/character/?${charactersParams}`;
+      const data = await getCharactersData(newUrl);
+      const heroesWithKey = data.results.map((item: HeroType) => { return { ...item, key: getUniqueId() } })
+
+      characters.value = { ...data, results: heroesWithKey }
+
       if (characters.value) {
+        cacheStore.addCharactersCache(charactersParams, characters.value);
         maxPages.value = characters.value.info.pages;
       }
-      setTimeout(() => {
+    } catch (error) {
+      cacheStore.addNotification([
+        "error",
+        `an error has occurred, please contact your application administrator!`,
+      ]);
+    } finally {
+      window.setTimeout(() => {
         isLoading.value = false;
       }, 500);
-    } else {
-      (characters.value as CharactersType).results = [];
-      setTimeout(() => {
-        isLoading.value = false;
-      }, 500);
+    }
+  }
+
+  function isResultsCached(queryParams: string): boolean {
+    return !!Object.keys(charactersCache.value).length &&
+      Object.keys(charactersCache.value).includes(queryParams)
+  }
+
+  function sortFilters(filters?: ParamsType) {
+    if (filters) {
+      const filtersEntries = Object.entries(filters)
+      filtersEntries.sort(function (a, b) {
+        if (a[0] < b[0]) {
+          return -1;
+        }
+        if (a[0] > b[0]) {
+          return 1;
+        }
+        return 0;
+      });
+      return Object.fromEntries(filtersEntries)
     }
   }
 
   return {
     characters,
-    getData,
     handleFavorites,
     favorites,
     favID,
-    search,
     dropdownObject,
     searchString,
     maxPages,
-    advancedSearch,
     isLoading,
     changeViewElement,
     selectedDropdownValue,
-    dropdownLabels,
-    pickedPageNumber
+    pickedPageNumber,
+    getCharacters,
   };
 });

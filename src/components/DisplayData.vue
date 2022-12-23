@@ -17,7 +17,7 @@
         />
         <CharacterRow
           v-for="item in data"
-          :key="item.id"
+          :key="item.key"
           :image="item.image"
           :hero-id="item.id"
           :name="item.name"
@@ -32,7 +32,7 @@
       <div v-else class="cards">
         <CharacterCard
           v-for="item in data"
-          :key="item.id"
+          :key="item.key"
           :image="item.image"
           :hero-id="item.id"
           :name="item.name"
@@ -57,42 +57,29 @@ import { useCharactersStore } from '@/stores/characters';
 import { validateQuery } from '@/utilitis/validateQuery';
 import FunctionalityBar from './FunctionalityBar.vue';
 
-const props = defineProps<{
+type PropsType = {
   data: HeroType[];
   noData: string;
-  isFilters?: boolean;
-}>();
+  isFilters: boolean;
+};
 
+const props = defineProps<PropsType>();
 const showInRows = ref<boolean>(!!localStorage.getItem('rows'));
 const heroStore = useCharactersStore();
+const show = computed(() => !!props.data.length);
 
-const show = computed(() => {
-  if (props.data.length) {
-    return true;
-  } else return false;
-});
-function isRowView() {
+function isRowView(): void {
   showInRows.value = !!localStorage.getItem('rows');
 }
 
-window.onpopstate = function () {
+window.onpopstate = function (): void {
   const paramsString = window.location.search;
   const searchParams = new URLSearchParams(paramsString);
   const queryObject = Object.fromEntries(searchParams.entries());
   const { page, ...restOfParams } = queryObject;
-  const validFilters = validateQuery(restOfParams);
+  const { validParams } = validateQuery(restOfParams);
 
-  if (validFilters) {
-    const validEntries = Object.entries(validFilters);
-
-    if (validEntries.length > 1) {
-      heroStore.advancedSearch(validFilters, Number(page));
-    } else if (validEntries.length < 1) {
-      heroStore.getData(Number(page));
-    } else {
-      heroStore.search(validEntries[0][0], validEntries[0][1], Number(page));
-    }
-  }
+  heroStore.getCharacters(Number(page), validParams);
 };
 </script>
 

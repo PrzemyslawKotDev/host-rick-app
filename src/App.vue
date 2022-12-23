@@ -8,13 +8,12 @@
 </template>
 
 <script setup lang="ts">
-import Header from "@/components/Header.vue";
-import Loader from "@/components/Loader.vue";
-import Notifier from "./components/Notifier.vue";
+import Header from '@/components/Header.vue';
+import Loader from '@/components/Loader.vue';
+import Notifier from './components/Notifier.vue';
 </script>
-
+//TODO: Header selfclose na czerwono -> czemu? googlać // PageSpeed bug fix
 <style>
-
 .app-container {
   padding: 0;
   margin: -8px;

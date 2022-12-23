@@ -39,14 +39,14 @@ import { storeToRefs } from 'pinia';
 import { useCharactersStore } from '@/stores/characters';
 import { computed } from 'vue';
 
-interface PropsInterface {
+type PropsInterface = {
   image: string;
   name: string;
   heroId: number | string;
   gender: string;
   species: string;
   status: string;
-}
+};
 
 const props = defineProps<PropsInterface>();
 const heroStore = useCharactersStore();

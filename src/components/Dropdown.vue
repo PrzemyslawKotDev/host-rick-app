@@ -1,12 +1,8 @@
 <template>
   <div ref="dropdown" class="dropdown">
     <select v-model="selectedDropdownValue" class="native-dropdown">
-      <option
-        v-for="(value, key, index) in dropdownObject"
-        :key="index"
-        :value="key"
-      >
-        {{ value }}
+      <option v-for="(item, key) in dropdownObject" :key="key" :value="key">
+        {{ item }}
       </option>
     </select>
     <button @click="isOpen = !isOpen" class="display">
@@ -15,35 +11,33 @@
     </button>
     <div v-if="isOpen" class="options">
       <button
+        v-for="(item, key) in dropdownObject"
         @click="pickOption(key)"
-        v-for="(value, key, index) in dropdownObject"
-        :key="index"
+        :key="key"
         class="option"
       >
-        {{ value }}
+        {{ item }}
       </button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useCharactersStore } from '@/stores/characters';
 import { onClickOutside } from '@vueuse/core';
-import { computed } from '@vue/reactivity';
-
-type DropdownValueType = typeof selectedDropdownValue.value;
+import type { FilterType } from '@/utilitis/validateQuery';
 
 const heroStore = useCharactersStore();
 const { selectedDropdownValue, dropdownObject } = storeToRefs(heroStore);
 const isOpen = ref(false);
-const dropdown = ref();
 const label = computed(() => dropdownObject.value[selectedDropdownValue.value]);
+const dropdown = ref();
 
-onClickOutside(dropdown, () => (isOpen.value = false));
+onClickOutside(dropdown, (): boolean => (isOpen.value = false));
 
-function pickOption(item: DropdownValueType) {
+function pickOption(item: FilterType): void {
   selectedDropdownValue.value = item;
   isOpen.value = false;
 }

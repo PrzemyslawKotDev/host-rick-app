@@ -8,12 +8,14 @@
 </template>
 
 <script setup lang="ts">
-import ChangeView from "./ChangeView.vue";
-import FilterDisplay from "./FilterDisplay.vue";
+import ChangeView from './ChangeView.vue';
+import FilterDisplay from './FilterDisplay.vue';
 
-const props = defineProps({
-  isFilters: Boolean,
-});
+type PropsType = {
+  isFilters: Boolean;
+};
+
+const props = defineProps<PropsType>();
 </script>
 
 <style lang="scss" scoped>

@@ -68,7 +68,7 @@ import { storeToRefs } from 'pinia';
 import { useCharactersStore } from '@/stores/characters';
 import { computed } from 'vue';
 
-interface PropsInterface {
+type PropsInterface = {
   description?: boolean;
   image: string;
   name: string;

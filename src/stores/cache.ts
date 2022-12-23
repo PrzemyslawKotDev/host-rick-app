@@ -1,20 +1,33 @@
 import { defineStore } from "pinia"
 import { ref } from "vue"
 import type CharactersType from "@/types/characters";
+import getUniqueId from "@/utilitis/getUniqueId";
 
 type CacheType = {
   [key: string]: CharactersType
 }
-export const useCache = defineStore("cache", () => {
+type NotifiesType = {
+  type: string;
+  message: string;
+  id: string
+}
 
-  const cache = ref<CacheType>({});
-  const notifies = ref<[string, string][]>([])
+export const useCharactersCache = defineStore("charactersCache", () => {
 
-  function addCache(query: string, response: CharactersType) {
-    cache.value = {
-      ...cache.value,
-      [query]: response
-    }
+  const charactersCache = ref<CacheType>({});
+  const charactersNotifies = ref<NotifiesType[]>([])
+
+  function addNotification(notifyData: [string, string]): void {
+    charactersNotifies.value.unshift({
+      id: getUniqueId(),
+      type: notifyData[0],
+      message: notifyData[1]
+    })
   }
-  return { notifies, cache, addCache }
+
+  function addCharactersCache(query: string, response: CharactersType): void {
+    charactersCache.value[query] = response;
+  }
+
+  return { charactersNotifies, charactersCache, addCharactersCache, addNotification }
 })

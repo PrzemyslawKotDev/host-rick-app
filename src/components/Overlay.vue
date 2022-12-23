@@ -5,9 +5,13 @@
 </template>
 
 <script setup lang="ts">
-const props = defineProps<{
+type PropsType = {
   isOpen: boolean;
-}>();
+};
+
+withDefaults(defineProps<PropsType>(), {
+  isOpen: false,
+});
 </script>
 
 <style scoped lang="scss">

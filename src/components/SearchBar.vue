@@ -41,9 +41,8 @@ import AdvancedSearch from './AdvancedSearch.vue';
 import { ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { validateQuery } from '@/utilitis/validateQuery';
-import { notUsedParams } from '@/utilitis/notUsedParams';
 
-type DropdownValueType = typeof selectedDropdownValue.value;
+type FilterType = typeof selectedDropdownValue.value;
 
 const heroStore = useCharactersStore();
 const { searchString, selectedDropdownValue } = storeToRefs(heroStore);
@@ -52,43 +51,39 @@ const isAdvancedSearch = ref(false);
 const router = useRouter();
 const route = useRoute();
 
-function doSearch() {
-  const { page, ...restOfParams } = route.query;
-  const inactiveParams = notUsedParams(restOfParams);
-
+function doSearch(): void {
+  const { unusedParams } = validateQuery(route.query);
+  const dropdownParam = {
+    [selectedDropdownValue.value]: searchString.value.toLowerCase(),
+  };
   const query = {
     page: 1,
+    ...dropdownParam,
   };
 
-  Object.assign(query, {
-    [selectedDropdownValue.value]: searchString.value.toLowerCase(),
-  });
-
-  heroStore.search(
-    selectedDropdownValue.value,
-    searchString.value.toLowerCase()
-  );
+  heroStore.getCharacters(1, dropdownParam);
 
   router.push({
     name: 'basic',
-    query: { ...query, ...inactiveParams },
+    query: {
+      ...query,
+      ...unusedParams,
+    },
   });
 }
 
 watch(
   () => route.query,
-  (newValue) => {
-    handleParams(newValue as { [k: string]: string });
-  }
+  (newValue) => handleParams(newValue as { [k: string]: string })
 );
 
 function handleParams(queryObject: { [k: string]: string }): void {
-  const query = validateQuery(queryObject);
-  const queryEntries = Object.entries(query);
+  const { validParams } = validateQuery(queryObject);
+  const paramsEntries = Object.entries(validParams);
 
-  if (queryEntries.length === 1) {
-    selectedDropdownValue.value = queryEntries[0][0] as DropdownValueType;
-    searchString.value = queryEntries[0][1] as string;
+  if (paramsEntries.length === 1) {
+    selectedDropdownValue.value = paramsEntries[0][0] as FilterType;
+    searchString.value = paramsEntries[0][1] as string;
   } else {
     selectedDropdownValue.value = 'name';
     searchString.value = '';

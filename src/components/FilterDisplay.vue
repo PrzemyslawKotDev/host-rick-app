@@ -1,11 +1,7 @@
 <template>
   <div v-if="isFilters" class="filter-container">
-    <div
-      v-for="(value, key) in validatedParams"
-      :key="value"
-      class="filter-box"
-    >
-      <div>{{ getFilterName(key) }}: {{ value }}</div>
+    <div v-for="(value, key) in validatedParams" :key="key" class="filter-box">
+      <div>{{ dropdownObject[key] }}: {{ value }}</div>
       <button @click="deleteFilter(key)" class="close">+</button>
     </div>
   </div>
@@ -13,72 +9,47 @@
 
 <script setup lang="ts">
 import { useCharactersStore } from '@/stores/characters';
-import { notUsedParams } from '@/utilitis/notUsedParams';
 import { validateQuery } from '@/utilitis/validateQuery';
 import { storeToRefs } from 'pinia';
 import { computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import type { FilterType } from '@/utilitis/validateQuery';
 
-type FilterValueType = typeof selectedDropdownValue.value;
+type PropsType = {
+  isFilters: Boolean;
+};
 
-const props = defineProps({
-  isFilters: Boolean,
-});
+const props = defineProps<PropsType>();
 const heroStore = useCharactersStore();
-const { dropdownObject, selectedDropdownValue } = storeToRefs(heroStore);
+const { dropdownObject } = storeToRefs(heroStore);
 const route = useRoute();
 const router = useRouter();
 
 const validatedParams = computed(() => {
-  const { page, ...restOfParams } = route.query;
-  if (restOfParams) {
-    return validateQuery(route.query);
-  }
+  const { validParams } = validateQuery(route.query);
+  return validParams;
 });
 
-function getFilterName(item: FilterValueType) {
-  return dropdownObject.value[item];
-}
+function deleteFilter(filter: FilterType): void {
+  const paramsEntries = Object.entries(route.query);
+  const updatedParams = paramsEntries.reduce((acumulator, [key, value]) => {
+    return {
+      ...acumulator,
+      ...(value && key !== filter && { [key]: value }),
+    };
+  }, {});
 
-function deleteFilter(filter: FilterValueType) {
-  const { page, ...restOfParams } = route.query;
-  const inactiveParams = notUsedParams(restOfParams);
+  router.push({
+    name: 'basic',
+    query: {
+      ...updatedParams,
+      page: 1,
+    },
+  });
 
-  if (restOfParams) {
-    const validFilters = validateQuery(restOfParams);
-    const queryEntries = Object.entries(validFilters);
+  const { validParams } = validateQuery(updatedParams);
 
-    const reduced = queryEntries.reduce((acumulator: object, [key, value]) => {
-      return {
-        ...acumulator,
-        ...(value && key !== filter && { [key]: value }),
-      };
-    }, {});
-
-    router.push({
-      name: 'basic',
-      query: {
-        page: page,
-        ...reduced,
-        ...inactiveParams,
-      },
-    });
-
-    const reducedEntries: [string, string][] = Object.entries(reduced);
-    if (reducedEntries.length === 0) {
-      heroStore.getData(Number(page));
-    }
-
-    if (reducedEntries.length === 1) {
-      heroStore.search(
-        reducedEntries[0][0],
-        reducedEntries[0][1],
-        Number(page)
-      );
-    } else {
-      heroStore.advancedSearch(reduced, Number(page));
-    }
-  }
+  heroStore.getCharacters(1, validParams);
 }
 </script>
 
@@ -118,8 +89,9 @@ function deleteFilter(filter: FilterValueType) {
   transition: transform 0.2s ease-in-out;
   font-weight: $fontweight-bold;
   cursor: pointer;
-}
-.close:hover {
-  transform: rotate(135deg);
+
+  &:hover {
+    transform: rotate(135deg);
+  }
 }
 </style>

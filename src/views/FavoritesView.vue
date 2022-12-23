@@ -1,5 +1,9 @@
 <template>
-  <DisplayData :data="favorites" no-data="You have no favourites." />
+  <DisplayData
+    :isFilters="false"
+    :data="favorites"
+    no-data="You have no favourites."
+  />
 </template>
 
 <script setup lang="ts">

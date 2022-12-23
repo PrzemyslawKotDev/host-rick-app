@@ -26,7 +26,6 @@
 import { ref } from 'vue';
 import { useCharactersStore } from '@/stores/characters';
 import { useRouter, useRoute } from 'vue-router';
-import { notUsedParams } from '@/utilitis/notUsedParams';
 import { validateQuery } from '@/utilitis/validateQuery';
 
 type KeyType = keyof typeof formModel.value;
@@ -45,9 +44,8 @@ const formModel = ref({
 });
 
 if (route.query) {
-  const { page, ...restOfParams } = route.query;
-  const validFilters = validateQuery(restOfParams);
-  const queryEntries = Object.entries(validFilters);
+  const { validParams } = validateQuery(route.query);
+  const queryEntries = Object.entries(validParams);
 
   queryEntries.forEach(([key, item]) => {
     if (key !== 'page') {
@@ -56,12 +54,11 @@ if (route.query) {
   });
 }
 
-function doAdvancedSearch() {
-  const entries = Object.entries(formModel.value);
-  const { page, ...restOfParams } = route.query;
-  const inactiveParams = notUsedParams(restOfParams);
+function doAdvancedSearch(): void {
+  const filterEntries = Object.entries(formModel.value);
+  const { unusedParams } = validateQuery(route.query);
 
-  const filters = entries.reduce((acumulator, [key, value]) => {
+  const usedFilters = filterEntries.reduce((acumulator, [key, value]) => {
     return {
       ...acumulator,
       ...(value && { [key]: value }),
@@ -71,13 +68,13 @@ function doAdvancedSearch() {
   router.push({
     name: 'basic',
     query: {
+      ...usedFilters,
+      ...unusedParams,
       page: 1,
-      ...filters,
-      ...inactiveParams,
     },
   });
 
-  heroStore.advancedSearch(filters, 1);
+  heroStore.getCharacters(1, usedFilters);
   emit('closeSearch');
 }
 </script>
@@ -113,6 +110,10 @@ function doAdvancedSearch() {
   transition: transform 0.2s ease-in-out;
   font-weight: $fontweight-bolder;
 
+  &:hover {
+    transform: rotate(135deg);
+  }
+
   @include media-s {
     right: 0;
     top: -13px;
@@ -125,9 +126,6 @@ input {
 label {
   display: flex;
   align-items: center;
-}
-.close:hover {
-  transform: rotate(135deg);
 }
 .search-btn {
   margin-top: 25px;

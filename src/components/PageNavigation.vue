@@ -22,11 +22,10 @@ import { useRoute, useRouter } from 'vue-router';
 import { useDebounceFn } from '@vueuse/core';
 import { validateQuery } from '@/utilitis/validateQuery';
 import { ref } from 'vue';
-import { notUsedParams } from '@/utilitis/notUsedParams';
 
 const route = useRoute();
 const heroStore = useCharactersStore();
-const { maxPages, isLoading, pickedPageNumber } = storeToRefs(heroStore);
+const { maxPages, pickedPageNumber } = storeToRefs(heroStore);
 const router = useRouter();
 const scrollToElement = ref();
 
@@ -38,25 +37,11 @@ const debouncedPagination = useDebounceFn(() => {
     pickedPageNumber.value = maxPages.value;
   }
 
-  const { page, ...restOfParams } = route.query;
-  const validFilters = validateQuery(restOfParams);
-  const inactiveParams = notUsedParams(restOfParams);
+  const { validParams } = validateQuery(route.query);
 
-  if (validFilters) {
-    const validEntries = Object.entries(validFilters);
+  if (validParams) {
+    heroStore.getCharacters(pickedPageNumber.value, validParams);
 
-    if (validEntries.length > 1) {
-      heroStore.advancedSearch(validFilters, pickedPageNumber.value);
-    } else if (validEntries.length < 1) {
-      heroStore.getData(pickedPageNumber.value);
-    } else {
-      heroStore.search(
-        validEntries[0][0],
-        validEntries[0][1],
-        pickedPageNumber.value
-      );
-    }
-    isLoading.value = true;
     if (!scrollToElement.value) {
       scrollToElement.value = document.getElementById('view-bar');
     }
@@ -66,9 +51,8 @@ const debouncedPagination = useDebounceFn(() => {
   router.push({
     name: 'basic',
     query: {
+      ...route.query,
       page: pickedPageNumber.value,
-      ...restOfParams,
-      ...inactiveParams
     },
   });
 }, 500);

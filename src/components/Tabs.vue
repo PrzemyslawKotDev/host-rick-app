@@ -20,22 +20,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import { RouterLink, useRoute, useRouter } from "vue-router";
+import { ref } from 'vue';
+import { RouterLink, useRoute, useRouter } from 'vue-router';
 
 const router = useRouter();
 const route = useRoute();
 const query = ref();
 
-function handleParams(pickedRoute: string) {
-  if (pickedRoute === "basic") {
+function handleParams(pickedRoute: string): void {
+  if (pickedRoute === 'basic') {
     router.push({
-      name: "basic",
+      name: 'basic',
       query: query.value,
     });
   }
 
-  if (pickedRoute === "favorites") {
+  if (pickedRoute === 'favorites') {
     if (Object.entries(route.query).length) {
       query.value = route.query;
     }

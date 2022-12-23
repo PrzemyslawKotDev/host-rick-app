@@ -1,7 +1,7 @@
 <template>
   <DisplayData
     is-filters
-    v-if="characters && characters !== 'error'"
+    v-if="characters"
     :data="characters.results"
     no-data="No data to display."
     @open-hero-details="isDetailsViewOpen"
@@ -33,7 +33,7 @@ const router = useRouter();
 
 onMounted(() => {
   const { page, ...restOfParams } = route.query;
-  const validFilters = validateQuery(restOfParams);
+  const { validParams } = validateQuery(restOfParams);
 
   if (!page) {
     router.push({
@@ -44,25 +44,12 @@ onMounted(() => {
       },
     });
   }
-
-  if (validFilters) {
-    const validEntries = Object.entries(validFilters);
-
-    if (validEntries.length > 1) {
-      heroStore.advancedSearch(validFilters, Number(page));
-    } else if (validEntries.length < 1) {
-      heroStore.getData(Number(page));
-    } else {
-      heroStore.search(validEntries[0][0], validEntries[0][1], Number(page));
-    }
-  }
+  heroStore.getCharacters(Number(page), validParams);
 });
 
-function isDetailsViewOpen(hero: HeroInterface) {
+function isDetailsViewOpen(hero: HeroInterface): void {
   heroData.value = hero;
   openDetailsView.value = true;
 }
 </script>
-//TODO: Header selfclose na czerwono -> czemu? googlać //vite ssg test //
-PageSpeed bug fix //
 <style scoped lang="scss"></style>

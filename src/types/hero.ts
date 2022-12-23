@@ -1,5 +1,6 @@
 type HeroType = {
-  id: number | string;
+  id: number;
+  key: string;
   name: string;
   status: string;
   species: string;

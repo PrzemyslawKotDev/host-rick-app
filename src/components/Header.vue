@@ -1,13 +1,14 @@
 <template>
   <div class="header">
-    <img
-      height="80"
-      width="300"
-      class="logo"
-      src="@/assets/logo.svg"
-      @click="goHome"
-      alt="Rick and Morty"
-    />
+    <a @click="goHome">
+      <img
+        height="80"
+        width="300"
+        class="logo"
+        src="@/assets/logo.svg"
+        alt="Rick and Morty logo"
+      />
+    </a>
     <SearchBar />
     <Tabs />
   </div>
@@ -17,7 +18,7 @@
 import SearchBar from '@/components/SearchBar.vue';
 import Tabs from '@/components/Tabs.vue';
 import { useCharactersStore } from '@/stores/characters';
-import { notUsedParams } from '@/utilitis/notUsedParams';
+import { validateQuery } from '@/utilitis/validateQuery';
 import { storeToRefs } from 'pinia';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -26,21 +27,20 @@ const { searchString, selectedDropdownValue } = storeToRefs(heroStore);
 const router = useRouter();
 const route = useRoute();
 
-function goHome() {
-  const { page, ...restOfParams } = route.query;
-  const inactiveParams = notUsedParams(restOfParams);
+function goHome(): void {
+  const { unusedParams } = validateQuery(route.query);
 
   router.push({
     name: 'basic',
     query: {
+      ...unusedParams,
       page: 1,
-      ...inactiveParams,
     },
   });
 
   searchString.value = '';
   selectedDropdownValue.value = 'name';
-  heroStore.getData(1);
+  heroStore.getCharacters(1);
 }
 </script>
 
